@@ -69,7 +69,7 @@ namespace Seunghak.EditorTools
             var title = GetOrCreate(rootRt, "TitleText", typeof(TextMeshProUGUI));
             Anchor(title, new Vector2(0.5f, 0.62f), new Vector2(640, 140), Vector2.zero);
             var titleTmp = title.GetComponent<TextMeshProUGUI>();
-            SetText(titleTmp, font, "Fossil Merge", 80, Color.white, TextAlignmentOptions.Center);
+            SetText(titleTmp, font, "백만 번 죽는 네모", 80, Color.white, TextAlignmentOptions.Center);
 
             // 스피너
             var spinner = GetOrCreate(rootRt, "Spinner", typeof(Image));

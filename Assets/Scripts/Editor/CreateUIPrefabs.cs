@@ -50,7 +50,7 @@ public class CreateUIPrefabs
         GameObject titleGO = new GameObject("TitleText");
         titleGO.transform.SetParent(root.transform, false);
         var titleTMP = titleGO.AddComponent<TextMeshProUGUI>();
-        titleTMP.text = "Fossil Merge";
+        titleTMP.text = "백만 번 죽는 네모";
         titleTMP.fontSize = 60;
         titleTMP.alignment = TextAlignmentOptions.Center;
         titleTMP.color = Color.white;

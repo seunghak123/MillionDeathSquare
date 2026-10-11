@@ -49,7 +49,7 @@ namespace Seunghak.UIManager
 
             if (windowStack.Count == 0)
             {
-                PushUI(UI_TYPE.LobbyWindow);
+                PushUI(UI_TYPE.MDSMainWindow);
             }
         }
         public void PopPopup()
@@ -295,7 +295,7 @@ namespace Seunghak.UIManager
                 FitToParentLayer(uicomponent);
                 uicomponent.gameObject.SetActive(true);
             }
-            if (uiType == UI_TYPE.LobbyWindow || uiType == UI_TYPE.GameStartWindow)
+            if (uiType == UI_TYPE.LobbyWindow || uiType == UI_TYPE.GameStartWindow || uiType == UI_TYPE.MDSMainWindow)
             {
                 windowStack.Clear();
                 popupStack.Clear();
@@ -441,9 +441,9 @@ namespace Seunghak.UIManager
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                // 팝업만 ESC로 닫기 — 메인 윈도우·GameOverPopup은 ESC로 닫지 않음
-                // GameOverPopup을 ESC로 닫으면 GAME_OVER 상태에서 UI만 사라져 게임이 멈추므로 제외
-                if (currentUI is BaseUIPopup && !(currentUI is GameOverPopup))
+                // 팝업만 ESC로 닫기 — 메인 윈도우·결과 팝업은 ESC로 닫지 않음
+                // 결과 팝업을 ESC로 닫으면 클리어 상태에서 UI만 사라져 게임이 멈추므로 제외
+                if (currentUI is BaseUIPopup && !(currentUI is GameOverPopup) && !(currentUI is Seunghak.Game.MillionDeathSquare.MDSResultPopup))
                 {
                     currentUI.ExitWindow();
                 }

@@ -1,7 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using Seunghak.Game.Suika3D;
+using Seunghak.Game.MillionDeathSquare;
 
 namespace Seunghak.SceneManager
 {
@@ -17,17 +17,18 @@ namespace Seunghak.SceneManager
             this.openLobbyWindow = openLobbyWindow;
         }
     }
+
+    /// <summary>
+    /// 로비(메뉴) 씬 컨트롤러. 판을 정리하고 메인 화면(MDSMainWindow)을 띄운다.
+    /// 캠페인 선택/에디터/맵 찾기/멀티방은 모두 메인 화면에서 PushUI로 연다.
+    /// </summary>
     public class LobbySceneController : SceneController
     {
-        [Header("Fossil Merge 연결")]
-        [SerializeField] private SuikaGameManager gameManager;
+        [Header("백만 번 죽는 네모 연결 (비우면 씬에서 찾음)")]
+        [SerializeField] private MDSGameDirector director;
 
-        protected override E_SCENE_TYPE GetSceneType() => E_SCENE_TYPE.LOBBY;
+        protected override E_SCENE_TYPE GetSceneType() { return E_SCENE_TYPE.LOBBY; }
 
-        protected override void Awake()
-        {
-            base.Awake();
-        }
         public override void InitSceneController()
         {
             LoadLobbyBundleAndInit().Forget();
@@ -35,37 +36,23 @@ namespace Seunghak.SceneManager
 
         private async UniTaskVoid LoadLobbyBundleAndInit()
         {
-            Debug.Log("[Lobby] 1. UnloadBundle(INGAME)");
             BundleManager.Instance.UnloadBundle(E_BUNDLE_TYPE.INGAME);
-
-            Debug.Log("[Lobby] 2. LoadBundleAsync(LOBBY) 시작");
             await BundleManager.Instance.LoadBundleAsync(E_BUNDLE_TYPE.LOBBY);
-            Debug.Log("[Lobby] 3. LoadBundleAsync(LOBBY) 완료");
 
-            // 로비에서는 게임을 멈춰 둔다 (접시/카메라는 배경으로 계속 보임). 인게임 진입 시 RestartGame()으로 새 판.
-            var gm = gameManager != null ? gameManager : SuikaGameManager.Instance;
-            gm.ExitGame();
+            // 메뉴에서는 보드를 멈춰 둔다 (에디터 시험 플레이 복귀는 디렉터가 에디터 창으로 처리)
+            var d = director != null ? director : MDSGameDirector.Instance;
+            if (d != null) d.StopPlay();
             Seunghak.Platform.PlatformSaveSync.GameplayActive = false;
 
-            Debug.Log("[Lobby] 4. OpenUI");
             UIManager.Instance.OpenUI();
+            UIManager.Instance.PushUI(UI_TYPE.MDSMainWindow);
 
-            Debug.Log("[Lobby] 5. PushUI(GameStartWindow)");
-            UIManager.Instance.PushUI(UI_TYPE.GameStartWindow);
-            Debug.Log("[Lobby] 6. PushUI 완료");
-
-            // 로비 UI가 떴으니 부트 로딩 화면 해제 (재진입 시 호출돼도 안전)
             if (ApplicationManager.Instance != null)
                 ApplicationManager.Instance.HideBootLoading();
 
-            // 배너는 결과 화면에서만 (기획서 10.2) — 로비에서는 내린다
-            SuikaPlatformBridge.HideBanner();
-            SuikaAnalytics.Screen("lobby");
+            MDSAnalytics.Screen("main");
         }
-        public override void RegistSceneController()
-        {
-            base.RegistSceneController();
-        }
+
         public override void RegistSceneStepAction(E_SCENESTEP_TYPE actionType, Action playAction)
         {
             base.RegistSceneStepAction(actionType, playAction);

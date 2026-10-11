@@ -16,7 +16,7 @@ namespace Seunghak.SceneManager
         public override void InitSceneController()
         {
             UIManager.Instance.OpenUI();
-            UIManager.Instance.PushUI(UI_TYPE.GameStartWindow);
+            UIManager.Instance.PushUI(UI_TYPE.MDSMainWindow);
         }
         //�� �ε� �� �� �Ŵ����� ���� ��Ʈ�ѷ� ����ϴ� �Լ�
         public override void RegistSceneController()

@@ -81,7 +81,7 @@ namespace Seunghak.Manager
             // 선택값은 번들 로드보다 먼저 확정한다. 예전엔 번들 로드(await)가 끝난 뒤에야
             // 갱신해서, 로드가 느린 WebGL에서 캐릭터를 고르자마자 Play를 누르거나 로드가
             // 예외로 끝나면 선택이 저장되지 않아 이전 캐릭터로 인게임에 진입했다.
-            // 인게임(Fossil Merge)은 과일 테이블의 프리팹을 쓰므로 이 번들을 기다릴 필요가 없다.
+            // 인게임은 캐릭터 프리팹을 쓰지 않으므로(도형 네모) 이 번들을 기다릴 필요가 없다.
             _selectedCharacterId = characterId;
             SaveSelectedCharacter();
 
@@ -117,8 +117,7 @@ namespace Seunghak.Manager
 
             if (prefab == null)
             {
-                // 이 반환값은 상점 미리보기 용도일 뿐, 실제 인게임 스폰은
-                // SuikaFruitTable(씬에서 직접 참조하는 과일 프리팹)로 이뤄져서
+                // 이 반환값은 상점 미리보기 용도일 뿐, 인게임(도형 네모)은
                 // 이 값을 쓰지 않는다. 캐릭터 번들이 아직 준비되지 않아 미리보기를 못 찾더라도
                 // 선택 자체(= _selectedCharacterId 갱신)까지 막을 이유는 없다.
                 Debug.LogWarning($"[CharacterManager] 미리보기 프리팹 로드 실패(선택은 계속 진행): {data.prefabName} (번들: {bundleName})");

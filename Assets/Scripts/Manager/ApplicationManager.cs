@@ -113,8 +113,7 @@ namespace Seunghak.Common
             if (isFocused)
             {
                 // 일시정지 팝업이 떠 있는 상태로 백그라운드에 다녀오면 게임은 멈춰있는데 BGM만 다시 나오던 문제 방지.
-                var gm = Seunghak.Game.Suika3D.SuikaGameManager.Instance;
-                if (gm == null || gm.GameState != Seunghak.Game.Suika3D.E_SUIKA_GAME_STATE.PAUSED)
+                if (!Seunghak.Game.MillionDeathSquare.MDSSession.IsPaused)
                     Seunghak.Manager.SoundManager.Instance?.ResumeAll();
             }
             else
@@ -363,7 +362,7 @@ namespace Seunghak.Common
                     // 매니저들은 복원 전 PlayerPrefs로 이미 로드돼 있으므로 다시 읽게 한다
                     UserDataManager.Instance.ReloadFromLocalCache();
                     Seunghak.Manager.CharacterManager.Instance.ReloadFromLocalCache();
-                    Seunghak.Game.Suika3D.SuikaProgress.ReloadAllAfterRestore();
+                    Seunghak.Game.MillionDeathSquare.MDSSaveStore.ReloadAfterRestore();
                 }
             }
             catch (Exception e)

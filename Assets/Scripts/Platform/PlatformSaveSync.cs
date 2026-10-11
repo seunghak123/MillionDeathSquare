@@ -22,7 +22,7 @@ namespace Seunghak.Platform
     public static class PlatformSaveSync
     {
         /// <summary>플랫폼 Storage에 스냅샷을 저장하는 단일 키.</summary>
-        private const string SnapshotKey = "MergeGameSaveSnapshot";
+        private const string SnapshotKey = "MillionDeathSquareSaveSnapshot";
 
         /// <summary>로컬 변경 카운터 (PlayerPrefs). 스냅샷의 rev와 비교해 어느 쪽이 최신인지 판단.</summary>
         private const string LocalRevKey = "PlatformSaveRev";
@@ -49,9 +49,10 @@ namespace Seunghak.Platform
             "AdRewardTime",
             // 인앱결제 지급 완료 기록 (중복 지급 방지)
             TossIAP.GrantedOrdersKey,
-            // Fossil Merge: 로비 장착 스킬, 로비 광고 스킬 날짜 (SuikaProgress)
-            "FossilLoadout",
-            "FossilAdSkillDate",
+            // 백만 번 죽는 네모: 캠페인 진행·기록 (MDSSaveStore), 에디터 작업 중인 맵, 플레이한 맵 목록
+            "MDSCampaignSave",
+            "MDSEditorDraft",
+            "MDSPlayedMaps",
         };
 
         // 스냅샷에 포함하는 PlayerPrefs 키 (SetInt로 저장된 것)
@@ -59,15 +60,10 @@ namespace Seunghak.Platform
         {
             // CharacterManager.PREF_KEY_SELECTED
             "SelectedCharacter",
-            // Fossil Merge: 진행 (SuikaProgress) / 설정 (SuikaSettings, SuikaHaptics) / 마지막 모드
-            "FossilTectonicBest",
-            "FossilTectonicUnlocked",
-            "FossilTectonicUnlockShown",
-            "FossilAdSkillCount",
-            "FossilTiltSensitivity",
-            "FossilShakeIntensity",
-            "HapticEnabled",
-            "FossilMode",
+            // 백만 번 죽는 네모: 설정 (MDSSettings)
+            "MDSShakePercent",
+            "MDSRumbleEnabled",
+            "MDSShowGhosts",
         };
 
         [Serializable]

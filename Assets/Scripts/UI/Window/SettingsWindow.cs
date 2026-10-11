@@ -1,6 +1,6 @@
 using Seunghak.Common;
 using Seunghak.Manager;
-using Seunghak.Game.Suika3D;
+using Seunghak.Game.MillionDeathSquare;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,8 +50,7 @@ namespace Seunghak.UIManager
             LoadValues();
 
             // 인게임 중이면 일시정지
-            if (SuikaGameManager.Instance != null)
-                SuikaGameManager.Instance.Pause();
+            MDSSession.Pause();
         }
 
         public override void RestoreWindow()
@@ -66,8 +65,7 @@ namespace Seunghak.UIManager
             DeleteRegistedEvent();
 
             // 인게임 일시정지 해제
-            if (SuikaGameManager.Instance != null)
-                SuikaGameManager.Instance.Resume();
+            MDSSession.Resume();
 
             UIManager.Instance.PopUI();
         }

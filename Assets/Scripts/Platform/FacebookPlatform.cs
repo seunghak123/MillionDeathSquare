@@ -17,7 +17,7 @@ namespace Seunghak.Platform
     /// </summary>
     public class FacebookPlatform : MonoBehaviour, IPlatform
     {
-        public const string LeaderboardName = "mergegame_score";
+        public const string LeaderboardName = "milliondeathsquare_score";
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         // ── 초기화 / 필수 ──────────────────────────────────────────────────
@@ -196,7 +196,7 @@ namespace Seunghak.Platform
         {
             if (!CheckIsAvailable()) return false;
             _shareTcs = new UniTaskCompletionSource<bool>();
-            string text = $"Fossil Merge에서 {score}점을 달성했어요! 나보다 잘할 수 있을까요?";
+            string text = $"백만 번 죽는 네모에서 {score}번 죽고 클리어했어요! 나보다 덜 죽을 수 있을까요?";
 #if UNITY_WEBGL && !UNITY_EDITOR
             FBBridge_Share(gameObject.name, text, imageUrl);
 #else

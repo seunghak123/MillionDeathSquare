@@ -64,7 +64,7 @@ namespace Seunghak.Platform
             // 유저 키 사전 로드 (GetPlayerId() / 로그인에서 동기로 재사용)
             await GetUserKeyAsync();
             Debug.Log($"[TossPlatform] 초기화 완료, userKey={(string.IsNullOrEmpty(_cachedUserKey) ? "(없음)" : "OK")}");
-            // 배너는 결과 화면에서만 노출한다 (Fossil Merge 기획서 10.2) — 부팅 시에는 띄우지 않음
+            // 배너는 결과 화면에서만 노출한다 (토스 미니게임판 규칙) — 부팅 시에는 띄우지 않음
         }
 
         public string GetPlayerId() => string.IsNullOrEmpty(_cachedUserKey) ? "toss_player" : _cachedUserKey;
@@ -117,7 +117,7 @@ namespace Seunghak.Platform
         }
 
         // 게임 프로필이 없을 때 제출하지 못한 점수 (프로필 생성 후 다시 제출). 기기 로컬에만 둔다.
-        private const string PendingLeaderboardScoreKey = "FossilPendingLeaderboardScore";
+        private const string PendingLeaderboardScoreKey = "MDSPendingLeaderboardScore";
 
         /// <summary>
         /// 게임센터 순위표 점수 제출. 게임 프로필이 생기기 전에 제출하면 오류가 날 수 있어 (기획서 12.1)
@@ -186,7 +186,7 @@ namespace Seunghak.Platform
                     string.IsNullOrEmpty(imageUrl) ? null : imageUrl,
                     RequestTimeoutMs);
                 // 공유 시트는 사용자가 닫을 때까지 열려 있으므로 타임아웃을 걸지 않는다
-                await AIT.Share(new ShareMessage { Message = $"Fossil Merge에서 {score}점 달성! {link}" });
+                await AIT.Share(new ShareMessage { Message = $"백만 번 죽는 네모에서 {score}번 죽고 클리어! {link}" });
                 return true;
             }
             catch (Exception e)

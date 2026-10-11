@@ -446,7 +446,7 @@ mergeInto(LibraryManager.library, {
         if (typeof FBInstant === 'undefined' || !FBInstant.tournament) return;
         var payload = {
             initialScore: score,
-            config: { title: title || 'Fossil Merge 토너먼트' }
+            config: { title: title || 'Million Death Square 토너먼트' }
         };
         FBInstant.tournament.createAsync(payload)
             .then(function() {

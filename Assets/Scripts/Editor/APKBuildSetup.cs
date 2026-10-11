@@ -17,15 +17,15 @@ using System.IO;
 public static class APKBuildSetup
 {
     // ── 수정 가능한 설정 ─────────────────────────────────────────────
-    private const string PackageName      = "com.seunghak.mergegame";
+    private const string PackageName      = "com.seunghak.milliondeathsquare";
     private const string AppVersion       = "1.0.0";
     private const int    BundleVersionCode = 1;
     private const string CompanyName      = "Seunghak";
-    private const string ProductName      = "Fossil Merge";
+    private const string ProductName      = "백만 번 죽는 네모";
 
-    private const string KeystorePath     = "keystore/mergegame.keystore";
+    private const string KeystorePath     = "keystore/milliondeathsquare.keystore";
     private const string KeystorePass     = "asdf1234";
-    private const string KeyAliasName     = "mergegame";
+    private const string KeyAliasName     = "milliondeathsquare";
     private const string KeyAliasPass     = "asdf1234";
 
     private static readonly string BuildOutputDir =

@@ -1,6 +1,6 @@
 using Seunghak.Common;
 using Seunghak.Manager;
-using Seunghak.Game.Suika3D;
+using Seunghak.Game.MillionDeathSquare;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,18 +34,13 @@ namespace Seunghak.UIManager
         [SerializeField] private TextMeshProUGUI characterValueText;
         [SerializeField] private TextMeshProUGUI sfxValueText;
 
-        [Header("햅틱 (선택)")]
+        [Header("진동 (게임패드/모바일, 선택)")]
         [SerializeField] private Toggle hapticToggle;
 
-        [Header("지각 변동 모드 (선택) — 기획서 9.4/9.5")]
-        [Tooltip("기울기 감도: 0 낮음 / 1 보통 / 2 높음 (wholeNumbers 슬라이더)")]
-        [SerializeField] private Slider tiltSensitivitySlider;
-        [SerializeField] private TextMeshProUGUI tiltSensitivityText;
-        [Tooltip("흔들림 강도 0~100% (0이면 시각적 흔들림 완전히 끔)")]
+        [Header("화면 흔들림 (선택)")]
+        [Tooltip("흔들림 강도 0~100% (0이면 죽음 연출의 화면 흔들림을 완전히 끔)")]
         [SerializeField] private Slider shakeIntensitySlider;
         [SerializeField] private TextMeshProUGUI shakeIntensityText;
-        [Tooltip("기준 자세 재설정 (현재 폰 각도를 수평으로)")]
-        [SerializeField] private Button recalibrateButton;
 
         [Header("버튼")]
         [SerializeField] private Button inquiryButton;
@@ -66,17 +61,11 @@ namespace Seunghak.UIManager
             base.EnterWindow();
             LoadValues();
 
-            var gm = SuikaGameManager.Instance;
-            if (gm != null &&
-                (gm.GameState == E_SUIKA_GAME_STATE.PLAYING ||
-                 gm.GameState == E_SUIKA_GAME_STATE.READY))
+            // 플레이 중이었으면 일시정지하고, 닫을 때 다시 재개한다
+            if (MDSSession.IsPlaying && !MDSSession.IsPaused)
             {
                 _wasGamePaused = false;
-                gm.Pause();
-            }
-            else if (gm != null && gm.GameState == E_SUIKA_GAME_STATE.PAUSED)
-            {
-                _wasGamePaused = false; // 외부에서 이미 Pause됨 → 닫을 때 Resume 필요
+                MDSSession.Pause();
             }
             else
             {
@@ -96,8 +85,8 @@ namespace Seunghak.UIManager
             DeleteRegistedEvent();
 
             // 팝업이 열릴 때 게임이 진행 중이었으면 재개
-            if (!_wasGamePaused && SuikaGameManager.Instance != null)
-                SuikaGameManager.Instance.Resume();
+            if (!_wasGamePaused)
+                MDSSession.Resume();
 
             base.ExitWindow();
         }
@@ -113,27 +102,17 @@ namespace Seunghak.UIManager
             sfxSlider?.onValueChanged.AddListener(OnSfxChanged);
             if (hapticToggle != null)
             {
-                hapticToggle.SetIsOnWithoutNotify(SuikaHaptics.Enabled);
+                hapticToggle.SetIsOnWithoutNotify(MDSSettings.RumbleEnabled);
                 hapticToggle.onValueChanged.AddListener(OnHapticChanged);
-            }
-            if (tiltSensitivitySlider != null)
-            {
-                tiltSensitivitySlider.wholeNumbers = true;
-                tiltSensitivitySlider.minValue = 0;
-                tiltSensitivitySlider.maxValue = 2;
-                tiltSensitivitySlider.SetValueWithoutNotify(SuikaSettings.TiltSensitivity);
-                tiltSensitivitySlider.onValueChanged.AddListener(OnTiltSensitivityChanged);
-                OnTiltSensitivityLabel(SuikaSettings.TiltSensitivity);
             }
             if (shakeIntensitySlider != null)
             {
                 shakeIntensitySlider.minValue = 0f;
                 shakeIntensitySlider.maxValue = 1f;
-                shakeIntensitySlider.SetValueWithoutNotify(SuikaSettings.ShakeIntensity);
+                shakeIntensitySlider.SetValueWithoutNotify(MDSSettings.ShakeIntensity);
                 shakeIntensitySlider.onValueChanged.AddListener(OnShakeIntensityChanged);
-                OnShakeIntensityLabel(SuikaSettings.ShakeIntensity);
+                OnShakeIntensityLabel(MDSSettings.ShakeIntensity);
             }
-            recalibrateButton?.onClick.AddListener(OnClickRecalibrate);
         }
 
         public override void DeleteRegistedEvent()
@@ -143,25 +122,12 @@ namespace Seunghak.UIManager
             characterSlider?.onValueChanged.RemoveListener(OnCharacterChanged);
             sfxSlider?.onValueChanged.RemoveListener(OnSfxChanged);
             hapticToggle?.onValueChanged.RemoveListener(OnHapticChanged);
-            tiltSensitivitySlider?.onValueChanged.RemoveListener(OnTiltSensitivityChanged);
             shakeIntensitySlider?.onValueChanged.RemoveListener(OnShakeIntensityChanged);
-            recalibrateButton?.onClick.RemoveListener(OnClickRecalibrate);
-        }
-
-        private void OnTiltSensitivityChanged(float v)
-        {
-            SuikaSettings.TiltSensitivity = Mathf.RoundToInt(v);
-            OnTiltSensitivityLabel(SuikaSettings.TiltSensitivity);
-        }
-
-        private void OnTiltSensitivityLabel(int v)
-        {
-            if (tiltSensitivityText != null) tiltSensitivityText.text = v == 0 ? "낮음" : v == 2 ? "높음" : "보통";
         }
 
         private void OnShakeIntensityChanged(float v)
         {
-            SuikaSettings.ShakeIntensity = v;
+            MDSSettings.ShakeIntensity = v;
             OnShakeIntensityLabel(v);
         }
 
@@ -170,17 +136,9 @@ namespace Seunghak.UIManager
             if (shakeIntensityText != null) shakeIntensityText.text = $"{Mathf.RoundToInt(v * 100f)}%";
         }
 
-        private void OnClickRecalibrate()
-        {
-            var gm = SuikaGameManager.Instance;
-            gm?.Plate?.TiltInput?.Calibrate();
-            SuikaHaptics.Play(SuikaHaptics.DROP);
-        }
-
         private void OnHapticChanged(bool on)
         {
-            SuikaHaptics.Enabled = on;
-            if (on) SuikaHaptics.Play(SuikaHaptics.DROP); // 켰을 때 바로 느껴지게
+            MDSSettings.RumbleEnabled = on;
         }
 
         // ── 값 로드/저장 ─────────────────────────────────────────────────────
@@ -271,7 +229,7 @@ namespace Seunghak.UIManager
         public void OnClickHome()
         {
             ExitWindow();
-            Seunghak.SceneManager.SceneManager.Instance.ChangeScene(E_SCENE_TYPE.LOBBY);
+            MDSSession.ExitToMenu();
         }
     }
 }

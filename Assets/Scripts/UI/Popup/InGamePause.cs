@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Seunghak.Game.Suika3D;
+using Seunghak.Game.MillionDeathSquare;
 
 namespace Seunghak.UIManager
 {
     /// <summary>
-    /// Fossil Merge 인게임 일시정지 팝업. 계속하기/재시작/(추후)로비 이동 버튼 처리.
+    /// 인게임 일시정지 팝업. 계속하기/재시작(처음부터)/메인 화면 이동 버튼 처리.
+    /// 판 제어는 MDSSession(→ MDSGameDirector)을 통한다.
     /// </summary>
     public class InGamePause : BaseUIPopup
     {
@@ -27,8 +28,8 @@ namespace Seunghak.UIManager
             RegistEvent();
             base.EnterWindow();
 
-            if (scoreText != null && SuikaGameManager.Instance != null)
-                scoreText.text = SuikaGameManager.Instance.Score.ToString();
+            if (scoreText != null)
+                scoreText.text = MDSSession.CurrentDeaths.ToString();
         }
 
         public override void ExitWindow()
@@ -55,26 +56,24 @@ namespace Seunghak.UIManager
         public void OnClickContinue()
         {
             ExitWindow();
-            SuikaGameManager.Instance?.Resume();
+            MDSSession.Resume();
         }
 
-        // 재시작 — 접시를 비우고 처음부터 (RestartGame이 Time.timeScale 복원까지 처리)
+        // 재시작 — 현재 맵을 처음부터 (R 키와 같음)
         public void OnClickRetry()
         {
             ExitWindow();
-            SuikaGameManager.Instance?.RestartGame();
+            MDSSession.Restart();
         }
 
         // 로비로 이동
         public void OnClickHome()
         {
             ExitWindow();
-            // ExitGame()이 Time.timeScale 복구 + 플레이 상태 정리 (단일 씬 구조라 timeScale=0이 로비까지 이어지는 것 방지)
-            SuikaGameManager.Instance?.ExitGame();
             // 인게임 BGM이 로비까지 새어 나오지 않게 명시적으로 끊는다
-            Seunghak.Manager.SoundManager.Instance?.StopBGM();
-
-            Seunghak.SceneManager.SceneManager.Instance.ChangeScene(E_SCENE_TYPE.LOBBY);
+            if (Seunghak.Manager.SoundManager.Instance != null) Seunghak.Manager.SoundManager.Instance.StopBGM();
+            // 판 정리 + 메인 화면 이동은 디렉터가 처리
+            MDSSession.ExitToMenu();
         }
     }
 }
