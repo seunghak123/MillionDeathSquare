@@ -21,11 +21,17 @@ namespace Seunghak.Game.MillionDeathSquare
         [SerializeField] private MDSPaletteAsset palettes;
         [SerializeField] private MDSSpriteLibrary sprites;
         [SerializeField] private Camera boardCamera;
-        [Tooltip("위쪽 HUD(데스 카운터)가 가리는 높이 (칸)")]
-        [SerializeField] private float topMarginCells = 1.6f;
-        [SerializeField] private float sideMarginCells = 0.6f;
-        [Tooltip("에디터 화면에서 왼쪽 도구 패널이 가리는 너비 (칸)")]
-        [SerializeField] private float editorLeftMarginCells = 5f;
+        [Header("화면 중 UI가 가리는 비율 (셋업 툴 프리팹 배치와 맞춤)")]
+        [Tooltip("플레이: 위쪽 HUD(데스 카운터) / 아래쪽 조작 안내")]
+        [SerializeField] private float playTopFrac = 0.14f;
+        [SerializeField] private float playBottomFrac = 0.04f;
+        [Tooltip("에디터: 왼쪽 도구 / 오른쪽 장애물 패널 / 위·아래 막대")]
+        [SerializeField] private float editorLeftFrac = 0.17f;
+        [SerializeField] private float editorRightFrac = 0.16f;
+        [SerializeField] private float editorTopFrac = 0.075f;
+        [SerializeField] private float editorBottomFrac = 0.075f;
+        [Tooltip("맵 둘레 여백 (칸)")]
+        [SerializeField] private float marginCells = 0.4f;
 
         private MDSSpriteLibrary _lib;
         private MapData _map;
@@ -46,7 +52,7 @@ namespace Seunghak.Game.MillionDeathSquare
         private MDSPlayerView _player;
         private MDSEffects _effects;
         private Material _lineMaterial;
-        private int[] _prevObsX = new int[0], _prevObsY = new int[0];
+        private ObstacleMotion[] _previewMotions = new ObstacleMotion[0];
         private bool _editorLayout;
 
         public MDSPlayerView Player { get { return _player; } }
@@ -95,6 +101,7 @@ namespace Seunghak.Game.MillionDeathSquare
             SpriteRenderer sr = pool[index];
             sr.sprite = sprite;
             sr.sortingOrder = order;
+            sr.enabled = true;
             sr.gameObject.SetActive(true);
             return sr;
         }
@@ -230,11 +237,9 @@ namespace Seunghak.Game.MillionDeathSquare
                 _obstacles[i].gameObject.SetActive(on);
                 if (on) _obstacles[i].SetColors(_pal.obstacle, _pal.eye);
             }
-            if (_prevObsX.Length < map.Obstacles.Count)
-            {
-                _prevObsX = new int[Rules.MAX_OBSTACLES];
-                _prevObsY = new int[Rules.MAX_OBSTACLES];
-            }
+            // 에디터·메뉴 미리보기용 (플레이 중에는 Simulation이 위치를 준다)
+            _previewMotions = new ObstacleMotion[map.Obstacles.Count];
+            for (int i = 0; i < _previewMotions.Length; i++) _previewMotions[i] = new ObstacleMotion(map.Obstacles[i]);
 
             _player.gameObject.SetActive(true);
             _player.SetVisible(true);
@@ -297,7 +302,10 @@ namespace Seunghak.Game.MillionDeathSquare
             }
         }
 
-        /// <summary>맵 전체가 한 화면에 보이도록 직교 카메라 크기/위치 조정</summary>
+        /// <summary>
+        /// 맵 전체가 한 화면에 보이도록 직교 카메라 크기/위치 조정 (기획서 5.3: 한 화면에 다 보여야 패턴을 읽는다).
+        /// UI가 가리는 화면 비율을 빼고 남은 영역 가운데에 맵이 오도록 카메라를 비켜 놓는다.
+        /// </summary>
         public void FitCamera()
         {
             Camera cam = BoardCamera;
@@ -306,15 +314,21 @@ namespace Seunghak.Game.MillionDeathSquare
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = _pal.background;
             float aspect = cam.aspect > 0.01f ? cam.aspect : 16f / 9f;
-            float left = _editorLayout ? editorLeftMarginCells : sideMarginCells;
-            float needW = _map.Width + left + sideMarginCells;
-            float needH = _map.Height + topMarginCells + sideMarginCells;
-            float size = Mathf.Max(needH * 0.5f, needW * 0.5f / aspect);
-            cam.orthographicSize = size;
-            // HUD/도구 패널 쪽으로 여백을 두기 위해 카메라를 비켜 놓는다
-            float offsetX = -(left - sideMarginCells) * 0.5f;
-            float offsetY = (topMarginCells - sideMarginCells) * 0.5f;
-            cam.transform.position = new Vector3(transform.position.x + offsetX, transform.position.y + offsetY, -10f);
+            float l = _editorLayout ? editorLeftFrac : 0f;
+            float r = _editorLayout ? editorRightFrac : 0f;
+            float t = _editorLayout ? editorTopFrac : playTopFrac;
+            float b = _editorLayout ? editorBottomFrac : playBottomFrac;
+            float usableW = Mathf.Max(0.2f, 1f - l - r);
+            float usableH = Mathf.Max(0.2f, 1f - t - b);
+            float needW = _map.Width + marginCells * 2f;
+            float needH = _map.Height + marginCells * 2f;
+            float viewH = Mathf.Max(needH / usableH, needW / (usableW * aspect));
+            float viewW = viewH * aspect;
+            cam.orthographicSize = viewH * 0.5f;
+            // 남은 영역의 가운데가 화면 가운데에서 얼마나 비켜 있는지 → 카메라를 반대로 옮김
+            float offsetX = (l - r) * 0.5f * viewW;
+            float offsetY = (t - b) * 0.5f * viewH;
+            cam.transform.position = new Vector3(transform.position.x - offsetX, transform.position.y + offsetY, -10f);
             cam.transform.rotation = Quaternion.identity;
             _effects.SetCamera(cam);
         }
@@ -378,9 +392,9 @@ namespace Seunghak.Game.MillionDeathSquare
         public void RenderObstaclesAtTick(int tick)
         {
             if (_map == null) return;
-            for (int i = 0; i < _map.Obstacles.Count && i < _obstacles.Count; i++)
+            for (int i = 0; i < _previewMotions.Length && i < _obstacles.Count; i++)
             {
-                var m = new ObstacleMotion(_map.Obstacles[i]);
+                ObstacleMotion m = _previewMotions[i];
                 int x0, y0, x1, y1;
                 m.Evaluate(tick > 0 ? tick - 1 : 0, out x0, out y0);
                 m.Evaluate(tick, out x1, out y1);
@@ -485,6 +499,7 @@ namespace Seunghak.Game.MillionDeathSquare
         public void Clear()
         {
             _map = null;
+            _previewMotions = new ObstacleMotion[0];
             HideFrom(_tiles, 0);
             HideFrom(_tileDeco, 0);
             HideFrom(_coins, 0);

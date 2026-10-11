@@ -45,6 +45,7 @@ namespace Seunghak.Game.MillionDeathSquare
         private INetTransport _transport;
         private ResolvedMap _selected;
         private string _resolvingRef;
+        private Action<ulong, byte[]> _receive;
 
         public RoomSession Session { get; private set; }
         public bool InRoom { get { return Session != null; } }
@@ -112,6 +113,7 @@ namespace Seunghak.Game.MillionDeathSquare
         private void AttachSession(RoomSession s)
         {
             Session = s;
+            _receive = (from, data) => s.Receive(from, data); // 매 프레임 폴링에 쓰는 콜백은 한 번만 만든다
             _remotes.Clear();
             s.RoomChanged += OnRoomChanged;
             s.MatchStarting += OnMatchStarting;
@@ -143,11 +145,7 @@ namespace Seunghak.Game.MillionDeathSquare
         public void Update(float dt)
         {
             if (_lobby != null) _lobby.Update();
-            if (_transport != null && Session != null)
-            {
-                RoomSession s = Session;
-                _transport.Poll((from, data) => s.Receive(from, data));
-            }
+            if (_transport != null && Session != null && _receive != null) _transport.Poll(_receive);
             for (int i = 0; i < _bots.Count; i++) _bots[i].Update(dt);
         }
 
