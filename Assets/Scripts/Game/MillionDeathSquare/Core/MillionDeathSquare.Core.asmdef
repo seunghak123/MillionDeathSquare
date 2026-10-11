@@ -1,0 +1,14 @@
+{
+    "name": "MillionDeathSquare.Core",
+    "rootNamespace": "Seunghak.Game.MillionDeathSquare",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
