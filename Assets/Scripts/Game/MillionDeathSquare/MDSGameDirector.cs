@@ -80,6 +80,8 @@ namespace Seunghak.Game.MillionDeathSquare
         private bool _restartQueued;
         private bool _resultShown;
         private int _countdown;
+        /// <summary>멀티: 카운트다운 뒤 흐른 판 시간 (내가 먼저 골인해도 계속 흐름 — 방장의 시간 제한 판정용)</summary>
+        private int _matchTick;
         private int _prevPlayerX, _prevPlayerY;
         private readonly int[] _prevObsX = new int[Rules.MAX_OBSTACLES];
         private readonly int[] _prevObsY = new int[Rules.MAX_OBSTACLES];
@@ -155,6 +157,7 @@ namespace Seunghak.Game.MillionDeathSquare
             _restartQueued = false;
             _resultShown = false;
             _countdown = r.Kind == PlayKind.Multiplayer ? r.CountdownTicks : 0;
+            _matchTick = 0;
             _playing = true;
             PlatformSaveSync.GameplayActive = true;
 
@@ -302,12 +305,21 @@ namespace Seunghak.Game.MillionDeathSquare
                 _acc -= STEP;
                 steps++;
                 if (_countdown > 0) { _countdown--; continue; }
-                if (_sim.IsCleared) break;
+                _matchTick++;
+                if (_sim.IsCleared)
+                {
+                    if (_current.Kind == PlayKind.Multiplayer) continue; // 판 시간은 계속 흐른다
+                    break;
+                }
                 InputBits stepInput = input;
                 if (_restartQueued) { stepInput |= InputBits.Restart; _restartQueued = false; }
                 StepOnce(stepInput);
             }
             if (steps == MAX_STEPS_PER_FRAME) _acc = 0f; // 너무 밀리면 따라잡기 포기 (멈춤 방지)
+
+            // 방장: 시간 제한/유예 판정 (내가 이미 골인했어도 진행)
+            if (_current.Kind == PlayKind.Multiplayer && _multi != null && _multi.Session != null && _multi.Session.IsHost && _countdown <= 0)
+                _multi.Session.HostAdvance(_matchTick);
 
             Render(_acc / STEP, dt);
         }
@@ -335,7 +347,6 @@ namespace Seunghak.Game.MillionDeathSquare
                     int flags = (_sim.State == SimState.Dead ? 1 : 0) | (_sim.IsCleared ? 2 : 0);
                     s.SendPosition(_sim.Tick, _sim.PlayerX, _sim.PlayerY, flags);
                 }
-                if (s.IsHost) s.HostAdvance(_sim.Tick);
             }
 
             if (_sim.IsCleared) OnCleared();
