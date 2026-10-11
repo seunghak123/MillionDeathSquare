@@ -18,7 +18,7 @@
 - **토스(Apps In Toss) 연동**: 로그인/결제/광고 기능 완료
 
 ### IN DEVELOPMENT (개발 중)
-- **Fossil Merge (가제)**: 발굴대 위 3D 화석 합체 퍼즐 (11단계 → 공룡 부활, 2분 타임어택 + 라이프 3, 스킬 5종, 지각 변동 모드). 기획: 민수님 — `Docs/Fossil_Merge_기획서.md`
+- **백만 번 죽는 네모 (가제, MillionDeathSquare)**: 표정 있는 네모로 장애물을 피해 동전을 모으고 골인하는 고난도 퍼즐액션 + 맵 에디터·맵 코드 공유 + 2~4인 비공개 멀티방. PC(Steam) 우선, 모바일(토스)판과 규칙·맵 공유. 기획: 민수님 — `Docs/MillionDeathSquare_PC_기획서.md`
 - **멀티플랫폼 지원**: 기본 멀티플랫폼 + 토스 전용 빌드 분리
 
 ### REFERENCE ARCHITECTURE
@@ -276,12 +276,15 @@ CTO 검토 → QA 검증 → 최종 배포
 - WebGL 빌드 전용 (`#if UNITY_WEBGL`)
 - MCP 서버를 통한 문서 자동 참조
 
-### Fossil Merge (가제)
-- 기획서: `Docs/Fossil_Merge_기획서.md` (기획: 민수님). 밸런스 초기값은 `SuikaRules` (기획서 14장)
-- 코드: `Assets/Scripts/Game/Suika3D/` (`Seunghak.Game.Suika3D`, 프로토타입 이름 유지), 셋업: `Tools/Fossil Merge` 메뉴
-- 판 흐름 `SuikaGameManager` / 스킬·레벨업 `SuikaSkillSystem` / 지진 이벤트 `SuikaQuakeDirector` / 기울기 `SuikaTiltInput` / 발굴대 `SuikaPlate`(+`SuikaPlateWalls`)
-- 플랫폼·광고는 `SuikaPlatformBridge`, 햅틱은 `SuikaHaptics`, 판 밖 진행(장착·해금·광고 한도)은 `SuikaProgress`만 경유
-- 유저 데이터(코인=Gold/최고점/장착 스킬/설정/보유 캐릭터=스킨)는 `PlatformSaveSync`로 Toss 저장소 동기화
+### 백만 번 죽는 네모 (가제)
+- 기획서: `Docs/MillionDeathSquare_PC_기획서.md` (기획: 민수님). 밸런스 초기값은 코어의 `Rules` (기획서 13장)
+- 결정적 코어: `Assets/Scripts/Game/MillionDeathSquare/Core/` (asmdef, UnityEngine 참조 금지, mcs C# 7 호환, 60틱 고정 스텝 정수 연산)
+  - 맵 `MapData`/`MapValidator`/`MapSerializer`(공유 코드)/`MapCode`(창작마당 ID → 짧은 코드), 시뮬레이션 `Simulation`, 장애물 `ObstacleMotion`(틱의 순수 함수)
+  - 입력 기록 `InputRecording` + 재생 검증 `ReplayVerifier`(기록 조작 방지 + "직접 깨야 업로드"), 캠페인 `Campaign`/`CampaignProgress`, 에디터 `MapEditorModel`, 멀티 `Room`/`NetMessage`/`MatchTracker`, 후기 `Review`
+- Unity 계층: `Assets/Scripts/Game/MillionDeathSquare/` — `MDSGameDirector`(판 흐름, 고정 스텝 드라이버), `MDSBoardView`/`MDSPlayerView`/`MDSObstacleView`, `MDSInput`, 화면 `MDS*Window`/`MDS*Popup`
+- 플랫폼: `Assets/Scripts/Platform/MillionDeathSquare/` — 창작마당/순위표/로비 서비스 인터페이스 + 로컬 구현 + Steamworks.NET 구현(`STEAMWORKS_NET`)
+- 셋업: `Tools/Million Death Square` 메뉴, 테스트: `tools/run-core-tests.sh` + Unity EditMode
+- 저장 키 `MDS*`, 분석 이벤트 `mds_*`, 스냅샷 키 `MillionDeathSquareSaveSnapshot`
 
 ---
 

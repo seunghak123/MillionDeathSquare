@@ -254,7 +254,7 @@
             <div class="status-card dev">
                 <h3>IN DEVELOPMENT (개발 중)</h3>
                 <ul>
-                    <li><strong>3D 수박게임</strong>: 접시 위 3D 머지 게임 (같은 단계 합치기, 노멀/하드, 떨어지면 게임 오버)</li>
+                    <li><strong>백만 번 죽는 네모</strong>: 네모로 장애물을 피해 동전을 모으고 골인하는 고난도 퍼즐액션 + 맵 에디터·공유 + 멀티방 (PC Steam 우선)</li>
                     <li><strong>멀티플랫폼 지원</strong>: 기본 멀티플랫폼 + 토스 전용 빌드 분리</li>
                 </ul>
             </div>
@@ -625,12 +625,11 @@ CTO 검토 → QA 검증 → 최종 배포
             </ul>
         </div>
         <div class="agent-card">
-            <h3>3D 수박게임</h3>
+            <h3>백만 번 죽는 네모</h3>
             <ul>
-                <li>과일 = 기존 3D 캐릭터 프리팹 (SuikaFruitTable), 오브젝트 풀링</li>
-                <li>노멀: 접시 고정 / 하드: 접시가 무게 쪽으로 살짝 기울어짐 (흔들림 없음)</li>
-                <li>모바일 터치 우선: 상대 드래그 조준, 하단 회전 영역</li>
-                <li>플랫폼 연동은 SuikaPlatformBridge, 햅틱은 SuikaHaptics 경유</li>
+                <li>결정적 코어(Core asmdef, 60틱 정수 연산) — 맵/시뮬레이션/리플레이 검증/캠페인/에디터/멀티 모델</li>
+                <li>Unity 2D 계층(SpriteRenderer + 직교 카메라), 화면은 UIManager/BaseUI 프레임워크</li>
+                <li>플랫폼: Steam 창작마당·순위표·로비(Steamworks.NET), 로컬 구현으로 에디터 테스트</li>
             </ul>
         </div>
 
