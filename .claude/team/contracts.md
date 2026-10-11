@@ -14,36 +14,36 @@ UIManager.Instance.PushUI(UI_TYPE type)
 UIManager.Instance.PopUI()
 ```
 
-### Game Events (Logic Team 소유) — Fossil Merge
+### 판 흐름 (Logic Team 소유) — 백만 번 죽는 네모
 ```csharp
-// Logic → UI: SuikaGameManager
-OnStateChanged(E_SUIKA_GAME_STATE)   // NONE(로비) / READY / PLAYING / PAUSED / LEVEL_UP / GAME_OVER
-OnScoreChanged(int) / OnTimeBonus(float) / OnTimeWarning()   // 남은 10초
-OnLivesChanged(int) / OnLifeLost(Vector3) / OnDanger(bool)
-OnXpChanged(float xp, float need, int level) / OnLevelUp()   // → LevelUpPopup
-OnMerged(int tier, Vector3) / OnChain(int chain, Vector3)    // chain >= 2
-OnDinoRevival(Vector3) / OnDinoRevivalEnd()
-OnNextTierChanged(int) / OnGameOver() / OnTectonicUnlocked() / OnDifficultyChanged(E_SUIKA_DIFFICULTY)
-// SuikaSkillSystem
-OnInventoryChanged / OnPendingChanged(E_FOSSIL_SKILL) / OnSkillUsed(E_FOSSIL_SKILL)
-OnOfferChanged / OnNeedReplace(E_FOSSIL_SKILL) / OnOfferClosed
-// SuikaQuakeDirector (지각 변동)
-OnWarning(float) / OnQuakeStart / OnQuakeEnd(bool survived, int bonus)
-
-// UI → Logic
-SuikaGameManager.RestartGame() / ExitGame() / Pause() / Resume() / SetDifficulty(mode) / IsModeAvailable(mode)
-SuikaGameManager.Continue()                          // 광고는 SuikaPlatformBridge.ReviveWithAdAsync()
-SuikaGameManager.ConsumeDoubleGoldBonus()            // 코인 2배, 지급(AddGold)은 호출부
-SuikaSkillSystem.ActivateSlot(i) / CancelPending()
-SuikaSkillSystem.ChooseOffer(i) / ReplaceHeld(i) / DiscardOverflow()   // 다시 뽑기: SuikaPlatformBridge.RerollSkillsWithAdAsync()
-SuikaProgress.TryBuySkill(skill) / SuikaPlatformBridge.GetRandomSkillWithAdAsync()   // 로비 장착
-SuikaPlatformBridge.OnLeaveResultToLobbyAsync()      // 결과 → 로비 (전면 광고 규칙)
-SuikaPlatformBridge.ShowRewardedAsync(duringRun, placement)   // placement: lobby_skill / reroll / continue / coin_double
-
-// 플레이 데이터 (토스 이벤트 로그) — 게임 코드는 SuikaAnalytics만 호출
-SuikaAnalytics.RunStarted / RunEnded / RunAbandoned / DinoRevived / LifeLost / Continued
-SuikaAnalytics.LevelUpResolved / SkillUsed / SkillAcquiredInLobby / Ad / ModeUnlocked / Screen(name)
+// 메뉴 → 플레이 (씬 전환 INGAME → InGameSceneController가 BeginPendingPlay 호출)
+MDSGameDirector.Instance.RequestPlay(PlayRequest.Campaign(MDSMapResolver.ResolveCampaign(w, s, asset)));
+MDSGameDirector.Instance.RequestPlay(PlayRequest.User(await MDSMapResolver.ResolveAsync(mapCodeOrShareCode)));
+// 에디터 시험 플레이 (씬 전환 없음, 플레이 창 Push → 끝나면 Pop)
+MDSGameDirector.Instance.StartEditorTest(map, recording => editorModel.SubmitTestPlay(recording));
+// 결과 화면
+MDSGameDirector.Instance.Retry() / PlayNextStage() / ExitToMenu()
+// 공용 UI(일시정지·설정)는 디렉터 타입 대신 MDSSession만 사용
+MDSSession.Pause() / Resume() / Restart() / ExitToMenu() / IsPlaying / IsPaused / CurrentDeaths
+// HUD는 매 프레임 MDSGameDirector.Instance.Sim(Simulation)을 읽는다 (데스·동전·틱·카운트다운)
+event Action<int> DeathsChanged;   // 데스 펀치 연출
+event Action<PlayResult> Finished; // 클리어 (캠페인 기록·순위표 제출은 디렉터가 처리)
+MDSGameDirector.ConsumeReturnTarget(out UI_TYPE)   // LobbySceneController: 판에서 나오면 원래 화면으로
 ```
+
+### 결정적 코어 (Logic Team 소유, `Core/` asmdef — UnityEngine 금지, mcs C# 7)
+```csharp
+new Simulation(map).Step(InputBits)          // 60틱/초, 이벤트: GetEvent(i) (Death/Respawn/Coin/Key/DoorOpen/Checkpoint/Clear/Restart/Bump/SlideStart)
+ObstacleMotion.Evaluate(def, tick, out x, out y)  // 장애물 위치 = 틱의 순수 함수
+MapValidator.Validate(map) / MapSerializer.ToShareCode(map) / MapSerializer.TryParseShareCode(code, out map, out err)
+MapCode.Encode(workshopId) / MapCode.TryDecode(code, out id)
+InputRecording (RLE 직렬화) / ReplayVerifier.Run(map, rec) / Verify(map, rec, deaths, ticks)
+CampaignProgress.RecordClear(w, s, deaths, ticks) → ClearOutcome (월드·장치 해금)
+MapEditorModel: Apply/Erase/AddPathPoint/Undo/Redo/SubmitTestPlay/CanUpload
+RoomSession(호스트 중계) / MatchTracker(레이스·협동·생존 결과) / NetCodec
+```
+- 1칸 = `Fixed.CELL`(1200) 단위, 플레이어 초당 4칸 = 틱당 80, 장애물 2/4/6칸 = 40/80/120
+- 규칙 수치를 바꾸면 `Rules.RULES_VERSION`을 올린다 (기존 리플레이·순위 기록과 분리)
 
 ## 2. UI ↔ Platform 인터페이스
 
@@ -65,14 +65,11 @@ UserDataManager.Instance.LoadData()
 
 ## 4. 공통 Enum (Common Team 소유)
 
-### CommonEnum.cs
-- `E_SUIKA_GAME_STATE` (Suika3D/SuikaEnums.cs): NONE, READY, PLAYING, PAUSED, LEVEL_UP, GAME_OVER
-- `E_SUIKA_GAMEOVER_CAUSE`: NONE, LIVES_OUT, TIME_OUT
-- `E_SUIKA_DIFFICULTY`: NORMAL(일반), TECTONIC(지각 변동)
-- `E_FOSSIL_SKILL`: HAMMER, BRUSH, EARTHQUAKE, MAGNET, EVOLVE
-- `UI_TYPE.LevelUpPopup` (1007, InGamePause 뒤에 추가)
-- `UI_TYPE`: 모든 UI 화면 타입
-- `E_LOGIN_TYPE`: GUEST_LOGIN, APPS_IN_TOSS_LOGIN
+### CommonEnum.cs / BaseUI.cs
+- `UI_TYPE` 백만 번 죽는 네모 화면: `MDSMainWindow`, `MDSCampaignWindow`, `MDSPlayWindow`, `MDSEditorWindow`, `MDSMapFindWindow`, `MDSRoomWindow` (윈도우), `MDSMapDetailPopup`, `MDSResultPopup` (팝업). 프리팹 이름 = 타입 이름 (셋업 툴이 생성)
+- 레거시(베이스 프로젝트) 창 `GameStartWindow` / `InGameHUDWindow` / `GameOverPopup`은 기존 프리팹 호환용 최소 구현만 남음
+- `E_LOGIN_TYPE`: GUEST_LOGIN(Steam·에디터), APPS_IN_TOSS_LOGIN(모바일판), FACEBOOK_INSTANT_LOGIN
+- 코어 enum: `TileType`, `PathMode`, `KeyColor`, `InputBits`, `SimState`, `SimEventType`, `EditorTool`, `EditorDevice`, `MatchMode`, `PerceivedDifficulty`, `RecordPlatform`, `RecordKind`
 
 ---
 
@@ -141,9 +138,33 @@ UniTask<int> InviteFriendsAsync();  // 지급된 리워드 수량 합계 (없으
 - 저장: PlayerPrefs = 동기 로컬 캐시, `PlatformFactory.Current.Storage` = 원본. 로그인 직후 복원, 변경 시 디바운스 푸시.
 - 광고: `AdManager`는 GD/CG 심볼이 없으면 `PlatformFactory.Current.Ads`를 사용.
 - 로그인: 서버가 없으므로 `AIT.GetUserKeyForGame()`만 사용 (`AIT.AppLogin()` 호출 금지).
-- 점수 제출: 게임오버당 1회, `PlatformFactory.Current.SubmitScoreAsync` 경유. **일반 모드 점수만** 제출 (토스 순위표는 게임당 1개).
-  토스는 `AIT.GetGameCenterGameProfile`로 프로필을 먼저 확인하고, 없으면 점수를 `FossilPendingLeaderboardScore`(로컬)에 보관했다가 순위표를 연 뒤 제출.
-- 지각 변동 최고 기록: 자체 서버 없음 → `FossilTectonicBest`(토스 저장소 스냅샷)에만 저장. 토스 앱을 지우면 사라짐.
+- 점수 제출(토스 모바일판): `PlatformFactory.Current.SubmitScoreAsync` 경유. 토스는 `AIT.GetGameCenterGameProfile`로 프로필을 먼저 확인하고,
+  없으면 점수를 `MDSPendingLeaderboardScore`(로컬)에 보관했다가 순위표를 연 뒤 제출. PC(Steam)판의 맵별 기록은 7장 `ILeaderboardService`.
+- Steam(PC): `SteamPlatform` (`#if STEAMWORKS_NET`) — Storage = Steam 클라우드(`SteamCloudStorage`), 광고·결제 없음, 초기화 실패 시 DefaultPlatform
+
+---
+
+## 7. 맵 공유·기록·멀티방 서비스 (Platform/Network Team 소유) — 백만 번 죽는 네모
+
+`MDSServices.Workshop / Leaderboards / Lobby` — Steam 준비 시 Steam 구현, 아니면 로컬(오프라인) 구현.
+
+```csharp
+IWorkshopService.UploadAsync(WorkshopUploadRequest)   // Unlisted 기본, 실패 시 FriendsOnly. 리플레이로 직접 클리어 재검증
+IWorkshopService.ResolveMapCodeAsync(mapCode)         // 메타데이터 = 공유 코드 → 다운로드 없이 플레이
+IWorkshopService.LikeAsync / SubmitReviewAsync(Review) / RecordAttemptAsync / GetSummaryAsync / GetMyItemsAsync
+ILeaderboardService.SubmitAsync(mapKey, map, proof, deaths, ticks)   // 검증 통과해야 제출, 플랫폼별 보드
+ILeaderboardService.GetTopAsync(mapKey, RecordKind, n) / GetMineAsync
+ILobbyService.CreateRoomAsync(code) / JoinByCodeAsync(code) / InviteFriends() / LeaveRoom() / Transport(INetTransport)
+```
+| 항목 | 규칙 |
+|------|------|
+| 순위표 이름 | `RecordBoards.BoardName(mapKey, platform, kind)` = `mds_{key}_{pc|mo}_{deaths|time}`. key = `w_{맵코드}` / `c_{월드-스테이지}` / `h_{내용해시}` |
+| 후기(Steam) | 맵별 순위표 `mds_w_{코드}_review`: 점수 = 난이도×100 + 문구+1, 상세[0] = 좋아요(1)·클리어(2) — 창작마당 댓글 API 대신 |
+| 시도 수(Steam) | `mds_w_{코드}_attempt` 인원 = 시도 수 (클리어율 분모) |
+| 멀티 전송 | 참가자 → 방장만, 방장이 `RelayRouter` 규칙으로 중계. 위치는 비신뢰(20Hz), 나머지 신뢰 |
+| 방 코드 | 6글자 (I/O/0/1 제외), Steam 로비 데이터 `mds_code` 필터로만 찾음 |
+| 저장 키 | `MDSCampaignSave`, `MDSEditorDraft`, `MDSPlayedMaps`, `MDSShakePercent`, `MDSRumbleEnabled`, `MDSShowGhosts` (스냅샷 `MillionDeathSquareSaveSnapshot`) |
+| 분석 이벤트 | `mds_` 접두사 (`MDSAnalytics`) |
 
 ---
 
@@ -152,3 +173,4 @@ UniTask<int> InviteFriendsAsync();  // 지급된 리워드 수량 합계 (없으
 |------|--------|------|
 | (초기화) | setup | 초기 계약서 작성 |
 | 2026-03-10 | platform | BundleManager Addressables API 계약 추가 |
+| 2026-10-11 | claude | 백만 번 죽는 네모로 전환: 1·4장 교체, 6장 Steam 추가, 7장(창작마당·순위표·멀티방) 신설 |
