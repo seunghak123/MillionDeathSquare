@@ -1,0 +1,40 @@
+{
+  "mcpServers": {
+    "CodeGraphContext": {
+      "command": "C:\\Users\\dhtmd\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\cgc.EXE",
+      "args": ["mcp", "start"],
+      "env": {
+        "DEFAULT_DATABASE": "kuzu",
+        "INDEX_VARIABLES": "true",
+        "ALLOW_DB_DELETION": "false",
+        "IGNORE_HIDDEN_FILES": "true",
+        "ENABLE_AUTO_WATCH": "false",
+        "COMPLEXITY_THRESHOLD": "10",
+        "MAX_DEPTH": "unlimited",
+        "PARALLEL_WORKERS": "4",
+        "CACHE_ENABLED": "true",
+        "IGNORE_DIRS": "node_modules,venv,.venv,env,.env,dist,build,target,out,.git,.idea,.vscode,__pycache__,Library,Temp",
+        "INDEX_SOURCE": "true"
+      },
+      "disabled": false
+    },
+    "mcp-unity": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "C:/Users/dhtmd/Desktop/BaseProject/Library/PackageCache/com.gamelovers.mcp-unity@e4b7e74ad0/Server~/build/index.js"
+      ]
+    },
+    "gdrive": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "C:/Users/dhtmd/AppData/Roaming/npm/node_modules/@modelcontextprotocol/server-gdrive/dist/index.js"
+      ],
+      "env": {
+        "GDRIVE_OAUTH_PATH": "C:/Users/dhtmd/.config/mcp-gdrive/gcp-oauth.keys.json",
+        "GDRIVE_CREDENTIALS_PATH": "C:/Users/dhtmd/.config/mcp-gdrive/.gdrive-server-credentials.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+# 기획서 링크 목록
+# 형식: [이름] URL
+
+[GoToHome 기획 통합 문서] https://docs.google.com/presentation/d/1XoYVTZPs60RUoVsOOUUAdCEVEuLbhjpX/edit?slide=id.p37#slide=id.p37
+[프리팹/사운드 작업 시트] https://docs.google.com/spreadsheets/d/1AxuorzcWUBpHMmUpBJsrHJeaRcS7-h6w/edit?gid=1112271618#gid=1112271618
+[추가 기획 시트] https://docs.google.com/spreadsheets/d/1yYvdby_Oih7VJJysdi6ezJ0dIx0KzBgtU4c4-qNEZ7k/edit
+[회의록] https://docs.google.com/document/d/1HmjL13UJoAjziWRrl-J4aUm6cq_FgrpWXWAkxqCUaB8/edit
+

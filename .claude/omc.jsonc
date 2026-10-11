@@ -1,0 +1,89 @@
+// Oh-My-ClaudeCode Configuration
+// See: https://github.com/Yeachan-Heo/oh-my-claudecode for documentation
+//
+// Model IDs can be overridden via environment variables:
+//   OMC_MODEL_HIGH   (opus-class)
+//   OMC_MODEL_MEDIUM (sonnet-class)
+//   OMC_MODEL_LOW    (haiku-class)
+{
+  "$schema": "./omc-schema.json",
+
+  // Agent model configurations
+  "agents": {
+    "omc": {
+      // Main orchestrator - uses the most capable model
+      "model": "claude-opus-4-6"
+    },
+    "explore": {
+      // Fast pattern matching - uses fastest model
+      "model": "claude-haiku-4-5"
+    },
+    "analyst": {
+      // Requirements analysis and acceptance criteria
+      "model": "claude-opus-4-6"
+    },
+    "planner": {
+      // Strategic task sequencing and execution plans
+      "model": "claude-opus-4-6"
+    },
+    "architect": {
+      // System design, boundaries, interfaces
+      "model": "claude-opus-4-6"
+    },
+    "debugger": {
+      // Root-cause analysis, regression isolation
+      "model": "claude-sonnet-4-6"
+    },
+    "executor": {
+      // Code implementation, refactoring
+      "model": "claude-sonnet-4-6"
+    },
+    "verifier": {
+      // Completion evidence, claim validation
+      "model": "claude-sonnet-4-6"
+    },
+    "critic": {
+      // Plan/design critical challenge
+      "model": "claude-opus-4-6"
+    },
+    "writer": {
+      // Docs, migration notes, user guidance
+      "model": "claude-haiku-4-5"
+    }
+  },
+
+  // Feature toggles
+  "features": {
+    "parallelExecution": true,
+    "lspTools": true,
+    "astTools": true,
+    "continuationEnforcement": true,
+    "autoContextInjection": true
+  },
+
+  // MCP server integrations
+  "mcpServers": {
+    "exa": {
+      "enabled": true
+      // Set EXA_API_KEY environment variable for API key
+    },
+    "context7": {
+      "enabled": true
+    }
+  },
+
+  // Permission settings
+  "permissions": {
+    "allowBash": true,
+    "allowEdit": true,
+    "allowWrite": true,
+    "maxBackgroundTasks": 5
+  },
+
+  // Magic keyword triggers (customize if desired)
+  "magicKeywords": {
+    "ultrawork": ["ultrawork", "ulw", "uw"],
+    "search": ["search", "find", "locate"],
+    "analyze": ["analyze", "investigate", "examine"]
+  }
+}

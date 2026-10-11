@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: UI
+  m_EditorClassIdentifier: 
+  m_GroupName: UI
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 391efaf2bab50524dbd4666c390a504f
+  m_SerializeEntries:
+  - m_GUID: bb5fab0779661b74594de8e89c8f2ba3
+    m_Address: AdGachaBox
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 28a3088ea76273d42a2357350064bf36
+    m_Address: BaseAwnserPopup
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef117c5a6901a514c9a0382b71d417ee
+    m_Address: CharacterShopWindow
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d902ce2e78c61c24c833111134203407
+    m_Address: GameOverPopup
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - ingame
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1a2c54bd9bdf48647bf29c9dd94a0bb5
+    m_Address: GameStartWindow
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 20124757197bae1418d4c730b75afe91
+    m_Address: InGameHUDWindow
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 459b45a5d26f3a64789d4b8f45ccc4e0
+    m_Address: InGamePause
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3d6002007a0a7cd4180a620120625ded
+    m_Address: LoadingPopup
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dbc4bc678e52c8d498bd792acddc4239
+    m_Address: SettingPopup
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - main
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 6de0c727f0dd44e429f5a1341271192c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: bb725e12171433048b49e0f23dfaaa34, type: 2}
+    - {fileID: 11400000, guid: e4ac2791b14554f4faba75a0624848ad, type: 2}

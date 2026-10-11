@@ -1,0 +1,24 @@
+{
+    "dotnet.defaultSolution": "SecondProject.sln",
+    "dotnet.preferCSharpExtension": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.vs": true,
+        "**/Library": true,
+        "**/Temp": true,
+        "**/obj": true,
+        "**/bin": true
+    },
+    "search.exclude": {
+        "**/Library": true,
+        "**/Temp": true,
+        "**/obj": true,
+        "**/bin": true
+    },
+    "editor.formatOnSave": false,
+    "editor.quickSuggestions": {
+        "strings": true,
+        "comments": false,
+        "other": true
+    }
+}

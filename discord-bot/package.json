@@ -1,0 +1,16 @@
+{
+  "name": "baseproject-discord-agent-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Discord relay bot that lets approved server members trigger the local Claude Code agent on BaseProject, with owner approval required before any git push.",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.5"
+  }
+}
