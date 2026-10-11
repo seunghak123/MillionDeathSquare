@@ -141,6 +141,7 @@ namespace Seunghak.Platform
 
     /// <summary>
     /// 런타임 환경을 감지해 알맞은 IPlatform 구현체를 생성합니다.
+    /// PC: Steam(STEAMWORKS_NET) / WebGL: 토스 미니게임(모바일판) → Facebook / 그 밖: DefaultPlatform.
     /// ApplicationManager 초기화 시 한 번 Create()를 호출하세요.
     /// </summary>
     public static class PlatformFactory
@@ -153,6 +154,16 @@ namespace Seunghak.Platform
         /// </summary>
         public static IPlatform Create(GameObject owner)
         {
+#if STEAMWORKS_NET && (UNITY_STANDALONE || UNITY_EDITOR)
+            // PC(Steam)판 — 주 플랫폼. Steam 초기화에 실패하면 오프라인(DefaultPlatform)으로 진행
+            SteamPlatform steam = SteamPlatform.TryCreate(owner);
+            if (steam != null)
+            {
+                Current = steam;
+                Debug.Log("[PlatformFactory] SteamPlatform 생성");
+                return Current;
+            }
+#endif
 #if UNITY_WEBGL && !UNITY_EDITOR
             if (TossPlatform.CheckIsInsideTossApp())
             {
