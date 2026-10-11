@@ -47,6 +47,10 @@ namespace Seunghak.SceneManager
             UIManager.Instance.OpenUI();
             UIManager.Instance.PushUI(UI_TYPE.MDSMainWindow);
 
+            // 판에서 나왔으면 원래 보던 화면으로 (캠페인 선택 / 맵 찾기 / 멀티방)
+            UI_TYPE back;
+            if (d != null && d.ConsumeReturnTarget(out back)) UIManager.Instance.PushUI(back);
+
             if (ApplicationManager.Instance != null)
                 ApplicationManager.Instance.HideBootLoading();
 

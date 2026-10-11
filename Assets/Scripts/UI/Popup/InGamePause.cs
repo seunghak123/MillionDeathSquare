@@ -36,6 +36,8 @@ namespace Seunghak.UIManager
         {
             DeleteRegistedEvent();
             base.ExitWindow();
+            // Esc(UIManager)로 닫혀도 판이 멈춘 채 남지 않게 항상 재개 (재시작/나가기는 이후 동작이 덮어씀)
+            MDSSession.Resume();
         }
 
         // continueButton/homeButton은 프리팹 Inspector에서 OnClick이 이미 연결되어 있음.
